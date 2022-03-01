@@ -1,4 +1,4 @@
-# Group V: Group_V_Global_temperature
+# Group V: Global_temperature
 
 Project to be determined.
 
