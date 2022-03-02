@@ -1,6 +1,6 @@
 # Group V: Global_temperature
 
-Project to be determined.
+Our project is to visualize changes in global temperatures over time
 
 Team Members:
 - Tian Chen, tc3147@columbia.edu
