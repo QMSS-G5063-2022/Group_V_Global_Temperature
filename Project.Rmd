@@ -8,3 +8,40 @@ date: '2022-04-26'
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r}
+library(dplyr)
+library(ggplot2)
+library(leaflet)
+library(tibbletime)
+library(rgdal)
+library(lubridate)
+library(countrycode)
+```
+
+```{r}
+climate_country <- read.csv("/home/tianc/Downloads/GlobalLandTemperaturesByCountry.csv") %>% 
+  select(dt, AverageTemperature, Country) %>% 
+  group_by(year = lubridate::floor_date(as.Date(dt), "year"), Country) %>%
+  summarize(AverageTemperature = mean(AverageTemperature))
+
+climate_country
+```
+
+```{r}
+world_shape = readOGR(dsn= "/home/tianc/Documents/course_content/Lectures/Week07/data/world_map/", 
+                     layer="TM_WORLD_BORDERS_SIMPL-0.3")
+```
+
+
+```{r}
+world_map <- leaflet(world_shape, 
+ leafletOptions(attributionControl = FALSE, minzoom=1.5)) %>% 
+ setView(lat=10, lng=0 , zoom=2) %>%
+ # Add country borders 
+ addPolygons(stroke = TRUE, smoothFactor = 0.5,
+  weight=1, color='#333333', opacity=1, 
+ # Add colors for life exp quantiles
+  fillColor = ~colorQuantile("RdYlGn", wdi_lifexp)(wdi_lifexp), 
+  fillOpacity = 1)
+```
+
