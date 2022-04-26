@@ -16,11 +16,13 @@ library(countrycode)
 library(leaflet.extras)
 library(leaflet.extras2)
 library(widgetframe)
+library(htmlwidgets)
 ```
 
 ```{r}
 climate_country <- read.csv("/home/tianc/Downloads/GlobalLandTemperaturesByCountry.csv") %>% 
-  drop_na() %>% 
+  drop_na() %>%
+  filter()
   select(dt, AverageTemperature, Country) %>% 
   group_by(Country) %>%
   summarize(AverageTemperature = mean(AverageTemperature))
@@ -51,8 +53,7 @@ palette(c(45,43))
 
 
 ```{r}
-world_map <- leaflet(world_shape, 
-                     leafletOptions(attributionControl = FALSE, minzoom=1.5)) %>%
+world_map <- leaflet(world_shape) %>%
   setView(lat=10, lng=0 , zoom=2) %>%
   addPolygons(stroke = TRUE,
               weight=0.8, 
@@ -66,10 +67,25 @@ world_map <- leaflet(world_shape,
               popup = paste(
                 "Country:",climate_data$NAME,"<br/>",
                 "Average Temperature:", climate_data$AverageTemperature, "°C","<br/>"
-              ))
-
-frameWidget(world_map)
+              )) 
 
 ```
 
+```{r}
+saveWidget(world_map, file=paste0(getwd(), "/graphs/world_map.html"))
+```
 
+```{r}
+climate_change <- read.csv("/home/tianc/Downloads/Environment_Temperature_change_E_All_Data_NOFLAG.csv", fileEncoding="latin1") %>% 
+  drop_na() %>% 
+  select(-Area.Code, -Months.Code, -Element.Code, -Unit) %>% 
+  filter(Element=='Temperature change') %>% 
+  filter(Months==c('January',"February","March","April","May","June","July","August","September","October","November","December")) %>% 
+  group_by(Area, Months) %>% 
+  summarize(TemperatureChange=sum(c_across(starts_with("Y")), na.rm = F))
+
+climate_change$TemperatureChange <- round(climate_change$TemperatureChange)
+
+climate_change
+
+```
