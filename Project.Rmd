@@ -9,39 +9,67 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
-library(dplyr)
-library(ggplot2)
+library(tidyverse)
 library(leaflet)
-library(tibbletime)
 library(rgdal)
-library(lubridate)
 library(countrycode)
+library(leaflet.extras)
+library(leaflet.extras2)
+library(widgetframe)
 ```
 
 ```{r}
 climate_country <- read.csv("/home/tianc/Downloads/GlobalLandTemperaturesByCountry.csv") %>% 
+  drop_na() %>% 
   select(dt, AverageTemperature, Country) %>% 
-  group_by(year = lubridate::floor_date(as.Date(dt), "year"), Country) %>%
+  group_by(Country) %>%
   summarize(AverageTemperature = mean(AverageTemperature))
+
+climate_country$AverageTemperature <- round(climate_country$AverageTemperature)
 
 climate_country
 ```
+
 
 ```{r}
 world_shape = readOGR(dsn= "/home/tianc/Documents/course_content/Lectures/Week07/data/world_map/", 
                      layer="TM_WORLD_BORDERS_SIMPL-0.3")
 ```
 
+```{r}
+climate_data <- world_shape@data %>% 
+  left_join(climate_country, by = c(NAME = "Country"))
+
+world_shape@data <- climate_data
+
+```
+
+```{r}
+palette <- colorNumeric(palette="viridis", domain=climate_data$AverageTemperature, na.color="transparent")
+palette(c(45,43))
+```
+
 
 ```{r}
 world_map <- leaflet(world_shape, 
- leafletOptions(attributionControl = FALSE, minzoom=1.5)) %>% 
- setView(lat=10, lng=0 , zoom=2) %>%
- # Add country borders 
- addPolygons(stroke = TRUE, smoothFactor = 0.5,
-  weight=1, color='#333333', opacity=1, 
- # Add colors for life exp quantiles
-  fillColor = ~colorQuantile("RdYlGn", wdi_lifexp)(wdi_lifexp), 
-  fillOpacity = 1)
+                     leafletOptions(attributionControl = FALSE, minzoom=1.5)) %>%
+  setView(lat=10, lng=0 , zoom=2) %>%
+  addPolygons(stroke = TRUE,
+              weight=0.8, 
+              color='black', 
+              opacity=1,
+              fillColor = ~palette(AverageTemperature), 
+              fillOpacity = 1,
+              label = ~stringr::str_c(NAME, ' ',formatC(AverageTemperature, big.mark = ',', format='d')),
+              labelOptions = labelOptions(direction = 'auto'),
+              highlightOptions = highlightOptions(color='white', weight = 3,bringToFront = TRUE),
+              popup = paste(
+                "Country:",climate_data$NAME,"<br/>",
+                "Average Temperature:", climate_data$AverageTemperature, "°C","<br/>"
+              ))
+
+frameWidget(world_map)
+
 ```
+
 
