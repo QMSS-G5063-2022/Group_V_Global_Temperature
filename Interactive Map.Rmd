@@ -9,22 +9,276 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r}
+library(readr)
+library(plotly)
+library(ggplot2)
+library(DMwR2)
+library(dplyr)
+library(lubridate)
+library(hrbrthemes)
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+#setwd("E:/QMSS/DV/Group_V_Global_Temperature/GlobalLandTemperaturesByCountry")
+```
+
+
+```{r}
+getwd()
+```
+
+```{r}
+Country<-read_csv("E:/QMSS/DV/Group_V_Global_Temperature/GlobalLandTemperaturesByCountry.csv")
+```
+```{r}
+class(Country$dt)
+```
+
+```{r}
+New_Country<-Country%>%
+  filter(AverageTemperature!="N/A"& AverageTemperatureUncertainty!="N/A")
+```
+
+```{r}
+New_Country<-New_Country%>%
+  filter(dt >="1970-01-01")
+```
+
+```{r}
+New_Country<-New_Country %>%
+    group_by(Country) %>%
+  
+    mutate(Diff_Temp = AverageTemperature - lag(AverageTemperature,12))
+```
+
+
+
+
+
+
+```{r}
+USA<-New_Country%>%
+  filter(Country %in% c("United States"))
+```
+
+```{r}
+class(USA$dt)
+```
+```{r}
+Japan<-New_Country%>%
+  filter(Country %in% c("Japan"))
+```
+
+```{r}
+Russia<-New_Country%>%
+  filter(Country %in% c("Russia"))
+```
+
+
+```{r}
+plot1<- ggplot() +
+    geom_line(data = Russia, aes(x=dt, y=AverageTemperature,color="AverageTemperature")) +
+    geom_line(data = Russia, aes(x=dt, y=Diff_Temp,color="Diff_Temp"))+
+    xlab("Dates")+
+    ylab("Tempt")+
+   labs(color="Tempt_Type")+
+    ggtitle("Russia Monthly Temperature and Difference with previous year from 1990 to 2013")+
+    scale_x_date(limit=c(as.Date("1990-01-01"),as.Date("2013-09-11")))+
+   theme_minimal()
+
+  
+ggplotly(plot1)
+#plot1
+```
+
+```{r}
+plot2<-ggplot()+
+    geom_line(data = USA, aes(x=dt, y=AverageTemperature,color="AverageTemperature")) +
+    geom_line(data = USA, aes(x=dt, y=Diff_Temp,color="Diff_Temp"))+
+    xlab("Dates")+
+    ylab("Tempt")+
+   labs(color="Tempt_Type")+
+  ggtitle("USA Monthly Temperature and Difference with previous year from 1990 to 2013")+
+    scale_x_date(limit=c(as.Date("1990-01-01"),as.Date("2013-09-11")))+
+   theme_minimal()
+ggplotly(plot2)
+```
+
+
+```{r}
+plot3<-ggplot()+
+    geom_line(data = Japan, aes(x=dt, y=AverageTemperature,color="AverageTemperature")) +
+    geom_line(data = Japan, aes(x=dt, y=Diff_Temp,color="Diff_Temp"))+
+    xlab("Dates")+
+    ylab("Tempt")+
+   ggtitle("Japan Monthly Temperature and Difference with previous year from 1990 to 2013")+
+   labs(color="Tempt_Type")+
+    scale_x_date(limit=c(as.Date("1990-01-01"),as.Date("2013-09-11")))+
+   theme_minimal()
+ggplotly(plot3)
+
+```
+
+
+
+```{r}
+avg_diff<-New_Country%>%
+  group_by(Country)%>%
+  summarise(Variance = var(AverageTemperature))%>%
+  arrange(Variance)  %>%
+  mutate(rank = row_number())%>%
+  filter(rank<=10)
+  
+```
+
+```{r}
+class(New_Country$Diff_Temp)
+```
+
+
+```{r}
+avg_diff_by_tempdiff<-New_Country%>%
+  filter(Diff_Temp!="N/A")%>%
+  group_by(Country)%>%
+  summarise(meanD = mean(Diff_Temp))
+
+```
+
+
+```{r}
+Singapore<-New_Country%>%
+  filter(Country %in% c("Singapore"))
+  
+```
+
+
+```{r}
+plot4<-ggplot()+
+    geom_line(data = Singapore, aes(x=dt, y=AverageTemperature,color="AverageTemperature")) +
+    geom_line(data = Singapore, aes(x=dt, y=Diff_Temp,color="Diff_Temp"))+
+    xlab("Dates")+
+    ylab("Tempt")+
+   labs(color="Tempt_Type")+
+   ggtitle("Singapore Monthly Temperature and Difference with previous year from 1990 to 2013")+
+    scale_x_date(limit=c(as.Date("1971-01-01"),as.Date("2013-09-11")))+
+   theme_minimal()
+ggplotly(plot4)
+```
+
+
+
+```{r}
+Indonesia<-New_Country%>%
+  filter(Country %in% c("Colombia"))
+  
+```
+
+
+```{r}
+plot4<-ggplot()+
+    geom_line(data = Indonesia, aes(x=dt, y=AverageTemperature,color="AverageTemperature")) +
+    geom_line(data = Indonesia, aes(x=dt, y=Diff_Temp,color="Diff_Temp"))+
+    xlab("Dates")+
+    ylab("Tempt")+
+   labs(color="Tempt_Type")+
+   ggtitle("Columbia Monthly Temperature and Difference with previous year from 1990 to 2013")+
+    scale_x_date(limit=c(as.Date("1971-01-01"),as.Date("2013-09-11")))+
+   theme_minimal()
+ggplotly(plot4)
+```
+
+
+```{r}
+
+By_Year<-New_Country%>%
+  mutate(year = substring(dt,0,4))%>%
+  group_by(Country,year)%>%
+  summarise(Year_Tempt = mean(AverageTemperature))%>%
+  mutate(Year_diff = Year_Tempt-lag(Year_Tempt))
+  
+```
+```{r}
+By_Year$year<-ymd(By_Year$year, truncated = 2L)
+```
+
+```{r}
+class(By_Year$year)
+```
+
+```{r}
+By_Year_USA<-By_Year%>%
+  filter(Country %in% c("United States"))
+```
+
+```{r}
+Year_1<-ggplot()+
+    geom_line(data = By_Year_USA, aes(x=year, y=Year_Tempt,color="Year_Tempt")) +
+    geom_line(data = By_Year_USA, aes(x=year, y=Year_diff,color="Year_diff"))+
+      xlab("Dates")+
+    ylab("Tempt")+
+   labs(color="Tempt_Type")+
+   ggtitle("USA Yearly Temperature and Difference with previous year from 1990 to 2013")+
+    scale_x_date(limit=c(as.Date("1971-01-01"),as.Date("2013-09-11")))+
+   theme_minimal()
+ggplotly(Year_1)
+```
+
+
+```{r}
+By_Year_Russia<-By_Year%>%
+  filter(Country %in% c("Russia"))
+```
+
+```{r}
+Year_2<-ggplot()+
+    geom_line(data = By_Year_Russia, aes(x=year, y=Year_Tempt,color="Year_Tempt")) +
+    geom_line(data = By_Year_Russia, aes(x=year, y=Year_diff,color="Year_diff"))+
+      xlab("Dates")+
+    ylab("Tempt")+
+   labs(color="Tempt_Type")+
+   ggtitle("Russia Yearly Temperature and Difference with previous year from 1990 to 2013")+
+    scale_x_date(limit=c(as.Date("1971-01-01"),as.Date("2013-09-11")))+
+   theme_minimal()
+ggplotly(Year_2)
+```
+
+
+```{r}
+By_Year_Japan<-By_Year%>%
+  filter(Country %in% c("Japan"))
+```
+
+```{r}
+Year_3<-ggplot()+
+    geom_line(data = By_Year_Japan, aes(x=year, y=Year_Tempt,color="Year_Tempt")) +
+    geom_line(data = By_Year_Japan, aes(x=year, y=Year_diff,color="Year_diff"))+
+      xlab("Dates")+
+    ylab("Tempt")+
+   labs(color="Tempt_Type")+
+   ggtitle("JP Yearly Temperature and Difference with previous year from 1990 to 2013")+
+    scale_x_date(limit=c(as.Date("1971-01-01"),as.Date("2013-09-11")))+
+   theme_minimal()
+ggplotly(Year_3)
+```
+
+
+```{r}
+Continents<-New_Country%>%
+  filter(Country %in% c("Asia", "Africa", "North America", "South America", "Antarctica", 'Europe','Oceania'))
+```
+
+```{r}
+
+Vio_1<-ggplot(data = Continents, aes(x= Country,y=AverageTemperature,fill=Country))+
+  geom_violin() +
+  geom_boxplot(width=0.1, color="grey", alpha=0.2)+
+   theme_minimal()
+  
+ggplotly(Vio_1)
+```
+
