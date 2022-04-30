@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE,warning = FALSE,message=FALSE)
 ```
 
 ```{r}
@@ -305,20 +305,7 @@ library(rgdal)
 #                      layer="TM_WORLD_BORDERS_SIMPL-0.3")
 ```
 
-# ```{r}
-# By_Year<-By_Year%>%
-#   filter(Year_diff!="N/A")
-# ```
-# 
-# ```{r}
-# combined <- world_shape@data%>%
-#   left_join(By_Year,by = c('NAME' = 'Country'))
-# ```
-# 
-# ```{r}
-# Wmerged <-world_shape
-# Wmerged@data <- combined
-# ```
+
 
 ```{r}
 world <- map_data("world") %>%
@@ -343,7 +330,7 @@ By_year_new <-By_Year%>%
                size = 0.01)+
   theme_void() +
   scale_fill_viridis(option = "B",
-                     name= "Year_Diff",
+                     name= "Temperature Differences by Year",
                      guide = guide_colorbar(
                        direction = "horizontal",
                        barheight = unit(2, units = "mm"),
@@ -352,7 +339,7 @@ By_year_new <-By_Year%>%
                        title.position = "top",
                        title.hjust = 0.5,
                        title.vjust = 0.5 ))+
-  labs(title="Yearly Temperature Diff",
+  labs(title="Yearly Temperature",
        subtitle = "{current_frame}")+
   theme(
     plot.title = element_text(size = 12, hjust = 0.5),
