@@ -282,3 +282,96 @@ Vio_1<-ggplot(data = Continents, aes(x= Country,y=AverageTemperature,fill=Countr
 ggplotly(Vio_1)
 ```
 
+```{r}
+library(tidygeocoder)
+```
+```{r}
+#coord <- geo(By_Year$Country)
+#write.csv(coord,"E:/QMSS/DV/Group_V_Global_Temperature/coord.csv", row.names = FALSE,fileEncoding = "UTF-8")
+```
+
+```{r}
+#coord<-read_csv("E:/QMSS/DV/Group_V_Global_Temperature/coord.csv")
+```
+
+```{r}
+library(rgdal)
+```
+
+
+
+```{r}
+# world_shape = readOGR(dsn= "E:/QMSS/DV/5069/course_content/Lectures/Week07/data/world_map", 
+#                      layer="TM_WORLD_BORDERS_SIMPL-0.3")
+```
+
+# ```{r}
+# By_Year<-By_Year%>%
+#   filter(Year_diff!="N/A")
+# ```
+# 
+# ```{r}
+# combined <- world_shape@data%>%
+#   left_join(By_Year,by = c('NAME' = 'Country'))
+# ```
+# 
+# ```{r}
+# Wmerged <-world_shape
+# Wmerged@data <- combined
+# ```
+
+```{r}
+world <- map_data("world") %>%
+  filter(region != "Antarctica")
+```
+
+
+```{r}
+library(viridis)
+library(gganimate)
+library(gifski)
+```
+
+```{r}
+By_year_new <-By_Year%>%
+  filter(Year_diff!="N/A")%>%
+   right_join(world, by= c("Country" = "region"))%>%
+    ggplot(aes(long, lat, 
+             group= group, 
+             fill= Year_diff)) +
+  geom_polygon(color = "white", 
+               size = 0.01)+
+  theme_void() +
+  scale_fill_viridis(option = "B",
+                     name= "Year_Diff",
+                     guide = guide_colorbar(
+                       direction = "horizontal",
+                       barheight = unit(2, units = "mm"),
+                       barwidth = unit(100, units = "mm"),
+                       draw.ulim = FALSE,
+                       title.position = "top",
+                       title.hjust = 0.5,
+                       title.vjust = 0.5 ))+
+  labs(title="Yearly Temperature Diff",
+       subtitle = "{current_frame}")+
+  theme(
+    plot.title = element_text(size = 12, hjust = 0.5),
+    plot.subtitle = element_text(size = 10, hjust = 0.5),
+    plot.caption = element_text(size = 8, hjust = 1),
+    legend.position = "bottom") +
+  coord_fixed (ratio = 1.3) +
+  transition_manual(year)
+
+  
+      
+```
+```{r}
+animate(By_year_new, 
+        fps = 10, 
+        height = 500, 
+        width = 700,renderer = gifski_renderer("gganim.gif"),res=200)
+```
+
+
+
+
