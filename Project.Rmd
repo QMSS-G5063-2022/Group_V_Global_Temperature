@@ -1,7 +1,12 @@
 ---
 title: "Project"
-output: html_document
 date: '2022-04-26'
+always_allow_html: yes
+last_modified_at: 2021-05-30
+output: 
+  md_document:
+    variant: gfm
+    preserve_yaml: true
 ---
 
 ```{r setup, include=FALSE}
@@ -22,7 +27,7 @@ library(htmlwidgets)
 ```{r}
 climate_country_before <- read.csv("/home/tianc/Downloads/GlobalLandTemperaturesByCountry.csv") %>% 
   drop_na() %>%
-  filter(., dt >= as.Date("1743-11-01"), dt <= as.Date("1950-01-01")) %>% 
+  filter(., dt >= as.Date("1743-11-01"), dt <= as.Date("1975-01-01")) %>% 
   select(dt, AverageTemperature, Country) %>% 
   group_by(Country) %>%
   summarize(AverageTemperature = mean(AverageTemperature))
@@ -34,7 +39,7 @@ climate_country_before
 ```{r}
 climate_country_after <- read.csv("/home/tianc/Downloads/GlobalLandTemperaturesByCountry.csv") %>% 
   drop_na() %>%
-  filter(., dt > as.Date("1950-01-01"), dt <= as.Date("2013-09-01")) %>% 
+  filter(., dt > as.Date("1870-01-01"), dt <= as.Date("2013-09-01")) %>% 
   select(dt, AverageTemperature, Country) %>% 
   group_by(Country) %>%
   summarize(AverageTemperature = mean(AverageTemperature))
@@ -43,6 +48,7 @@ climate_country_after$AverageTemperature <- round(climate_country_after$AverageT
 
 climate_country_after
 ```
+
 
 ```{r}
 climate_change <- as.tibble(climate_country_after$AverageTemperature - climate_country_before$AverageTemperature) %>% 
@@ -93,8 +99,12 @@ world_map <- leaflet(world_shape) %>%
     opacity = 1
   )
 
-
 ```
+
+```{r}
+world_map
+```
+
 
 ```{r}
 saveWidget(world_map, file=paste0(getwd(), "/climate_change_map.html"))
