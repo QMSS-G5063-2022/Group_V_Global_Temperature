@@ -20,16 +20,35 @@ library(htmlwidgets)
 ```
 
 ```{r}
-climate_country <- read.csv("/home/tianc/Downloads/GlobalLandTemperaturesByCountry.csv") %>% 
+climate_country_before <- read.csv("/home/tianc/Downloads/GlobalLandTemperaturesByCountry.csv") %>% 
   drop_na() %>%
-  filter()
+  filter(., dt >= as.Date("1743-11-01"), dt <= as.Date("1950-01-01")) %>% 
   select(dt, AverageTemperature, Country) %>% 
   group_by(Country) %>%
   summarize(AverageTemperature = mean(AverageTemperature))
 
-climate_country$AverageTemperature <- round(climate_country$AverageTemperature)
+climate_country_before$AverageTemperature <- round(climate_country_before$AverageTemperature, 2)
 
-climate_country
+climate_country_before
+```
+```{r}
+climate_country_after <- read.csv("/home/tianc/Downloads/GlobalLandTemperaturesByCountry.csv") %>% 
+  drop_na() %>%
+  filter(., dt > as.Date("1950-01-01"), dt <= as.Date("2013-09-01")) %>% 
+  select(dt, AverageTemperature, Country) %>% 
+  group_by(Country) %>%
+  summarize(AverageTemperature = mean(AverageTemperature))
+
+climate_country_after$AverageTemperature <- round(climate_country_after$AverageTemperature, 2)
+
+climate_country_after
+```
+
+```{r}
+climate_change <- as.tibble(climate_country_after$AverageTemperature - climate_country_before$AverageTemperature) %>% 
+  rename(., AverageTemperature=value)
+
+climate_change$Country <- climate_country_after$Country
 ```
 
 
@@ -40,7 +59,7 @@ world_shape = readOGR(dsn= "/home/tianc/Documents/course_content/Lectures/Week07
 
 ```{r}
 climate_data <- world_shape@data %>% 
-  left_join(climate_country, by = c(NAME = "Country"))
+  left_join(climate_change, by = c(NAME = "Country"))
 
 world_shape@data <- climate_data
 
@@ -66,26 +85,17 @@ world_map <- leaflet(world_shape) %>%
               highlightOptions = highlightOptions(color='white', weight = 3,bringToFront = TRUE),
               popup = paste(
                 "Country:",climate_data$NAME,"<br/>",
-                "Average Temperature:", climate_data$AverageTemperature, "°C","<br/>"
-              )) 
+                "Temperature Change:", climate_data$AverageTemperature, "°C","<br/>"
+              )) %>% 
+  addLegend("bottomright", pal = palette, values = ~AverageTemperature,
+    title = "Temperature Change in °C",
+    labFormat = labelFormat(suffix  = "°C"),
+    opacity = 1
+  )
+
 
 ```
 
 ```{r}
-saveWidget(world_map, file=paste0(getwd(), "/graphs/world_map.html"))
-```
-
-```{r}
-climate_change <- read.csv("/home/tianc/Downloads/Environment_Temperature_change_E_All_Data_NOFLAG.csv", fileEncoding="latin1") %>% 
-  drop_na() %>% 
-  select(-Area.Code, -Months.Code, -Element.Code, -Unit) %>% 
-  filter(Element=='Temperature change') %>% 
-  filter(Months==c('January',"February","March","April","May","June","July","August","September","October","November","December")) %>% 
-  group_by(Area, Months) %>% 
-  summarize(TemperatureChange=sum(c_across(starts_with("Y")), na.rm = F))
-
-climate_change$TemperatureChange <- round(climate_change$TemperatureChange)
-
-climate_change
-
+saveWidget(world_map, file=paste0(getwd(), "/climate_change_map.html"))
 ```
