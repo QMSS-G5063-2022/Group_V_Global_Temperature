@@ -1,0 +1,254 @@
+---
+title: "DV project"
+author: "Jialin Wu"
+date: '2022-04-26'
+output: html_document
+---
+
+
+## In this section, I selected two countries: China and United States to further analyze the temperatrue changes through time. 
+
+```{r,echo=FALSE}
+
+library(readr)
+library(ggplot2)
+library(rgdal)
+library(sp)
+library(geojsonio)
+library(leaflet)
+library(lubridate)
+library(dplyr)
+library(ggbeeswarm)
+library(gridExtra)
+library(viridis)
+```
+
+
+```{r,echo=FALSE}
+
+temperature_country <- read_csv('C:/Users/ch199/Downloads/GlobalLandTemperaturesByCountry.csv')
+temperature_city <- read_csv('C:/Users/ch199/Downloads/GlobalLandTemperaturesByCity.csv')
+temperature_state <- read_csv('C:/Users/ch199/Downloads/GlobalLandTemperaturesByState.csv')
+```
+
+```{r,echo=FALSE}
+temperature_c <- temperature_country %>%
+  select(dt, AverageTemperature, Country) %>% 
+  filter(AverageTemperature != "NA") 
+  
+
+temperature_states <- temperature_state %>%
+  select(dt, AverageTemperature, State, Country) %>% 
+  filter(AverageTemperature != "NA")
+```
+
+```{r,echo=FALSE}
+temperature_cities <- temperature_city %>%
+  select(dt, AverageTemperature, Country, City) %>% 
+  filter(AverageTemperature != "NA") 
+  
+temperature_cities
+
+
+```
+```{r,echo=FALSE}
+temperature_cities$dt <-as.Date(temperature_cities$dt)
+temperature_cities$Year <- format(temperature_cities$dt,"%Y")
+temperature_cities$Month <- format(temperature_cities$dt,"%m")
+temperature_cities
+```
+
+```{r,echo=FALSE}
+temperature_states$dt <-as.Date(temperature_states$dt)
+temperature_states$Year <- format(temperature_states$dt,"%Y")
+temperature_states$Month <- format(temperature_states$dt,"%m")
+temperature_states
+```
+
+
+
+```{r,echo=FALSE}
+temperature_c$dt <-as.Date(temperature_c$dt)
+temperature_c$Year <- format(temperature_c$dt,"%Y")
+temperature_c$Month <- format(temperature_c$dt,"%m")
+temperature_c
+```
+
+## The following two plots are showing the Average temperature change in different months within cities of two different countries from year 1903~2003 (China & USA).
+
+```{r,echo=FALSE}
+
+temperature_China <- temperature_cities %>%
+  filter(Country == 'China') %>% 
+  filter(Year == 1903 | Year == 2003) %>%
+  ggplot(aes(AverageTemperature,Month,color=AverageTemperature)) + 
+  ggtitle("Comparison of Temperatures in China Between 1903 and 2003") +
+geom_quasirandom() + scale_colour_viridis() + facet_grid(Year ~.) + coord_flip()
+  
+temperature_China
+```
+
+```{r,echo=FALSE}
+
+temperature_US <- temperature_cities %>%
+  filter(Country == 'United States') %>%
+  filter(Year == 1903 | Year == 2003) %>%
+  ggplot(aes(AverageTemperature,Month,color=AverageTemperature)) + 
+  ggtitle("Comparison of Temperatures in The U.S. Between 1903 and 2003") +
+geom_quasirandom() + scale_colour_viridis() + facet_grid(Year ~.) + coord_flip()
+  
+temperature_US
+```
+## **Interpretations:**
+
+For average temperature in 1903 in China, from June to August, the average temperature are the highest amoung other months throughout the year, and January and December got the lowest average temperature.   In 2003, the ranges of temperature in each months does not change too much and the average temperature raised a bit in July but not very much.
+For average temperature in 1903 in the US, June and July got the highest average temperature which ranges from 15 to 26 degree. January got the lowest average temperature around -10 to 20 degree. In year 2003, the average temperature in the US raised a bit but not significant. 
+
+
+
+```{r,echo=FALSE}
+
+US_avg_temp <- temperature_cities %>% 
+  filter(Country == 'United States')%>% 
+  filter(Year >= 1983) %>%
+  group_by(Year) %>% 
+  summarise(Temp = mean(AverageTemperature))
+
+CHN_avg_temp <- temperature_cities %>% 
+  filter(Country == 'China')%>% 
+  filter(Year >= 1983) %>%
+  group_by(Year) %>% 
+  summarise(Temp = mean(AverageTemperature))
+```
+
+## The following two plots are showing the average temperature from year 1983 to 2013 in the US and China
+
+```{r,echo=FALSE}
+
+ggplot(US_avg_temp, aes(x=Year, y=Temp, color=Temp))+geom_point()+scale_color_gradient(low="blue", high="red")+scale_x_discrete(breaks = c(1983,1988,1993,1998,2003,2008,2013))+ggtitle("Average Temperature Change from 1983 to 2013 in the US")+
+         ylab("Temperature")
+
+```
+
+```{r,echo=FALSE}
+
+ggplot(CHN_avg_temp, aes(x=Year, y=Temp, color=Temp))+geom_point()+scale_color_gradient(low="blue", high="red")+scale_x_discrete(breaks = c(1983,1988,1993,1998,2003,2008,2013))+ggtitle("Average Temperature Change from 1983 to 2013 in China")+
+         ylab("Temperature")
+
+```
+
+## **Interpretations:**
+
+The average temperature plots of two countries both have an increasing trend from year 1984 to 2013 and reaches their perspective maximum average temperature at 2013: around 15 degrees in China and 16.7 degress in the US.
+
+
+
+
+## The following two boxplots are showing the average temperatures of two countries (USA and China) in forty years from 1963 to 2003, changes are not significant.
+
+```{r,echo=FALSE}
+US_avg_temp5 <- temperature_cities %>%
+  filter(Country == 'United States') %>%
+  filter(Year == 1963 | Year == 1973| Year == 1983 |Year == 1993 |Year == 2003) 
+
+CHN_avg_temp5 <- temperature_cities %>%
+  filter(Country == 'China') %>%
+  filter(Year == 1963 | Year == 1973| Year == 1983 |Year == 1993 |Year == 2003) 
+```
+
+```{r,echo=FALSE}
+ggplot(US_avg_temp5, aes(x=as.factor(Year), y=AverageTemperature, fill=AverageTemperature)) +
+  geom_boxplot() +
+  theme(plot.title = element_text(hjust = 0.5),legend.position =c(0.1,0.85))+
+  labs(x='Year', y="Temperature",title = "Average Temperature of USA in 40 Year")
+```
+
+```{r,echo=FALSE}
+ggplot(CHN_avg_temp5, aes(x=as.factor(Year), y=AverageTemperature, fill=AverageTemperature)) +
+  geom_boxplot() +
+  theme(plot.title = element_text(hjust = 0.5),legend.position =c(0.1,0.85))+
+  labs(x='Year', y="Temperature",title = "Average Temperature of China in 40 Year")
+```
+
+
+## the following two diagrams are showing eight cities in China and eight states in the US. I selected eight representative cities/states based on their unique locations to each perspective country
+
+
+```{r,echo=FALSE}
+library("hrbrthemes")
+China_cities<- c("Ürümqi","Shanghai", "Guangzhou", "Wuhan" , "Xian" ,"Kunming","Hefei","Harbin")
+
+cities_china <- temperature_cities %>% 
+  filter(City %in% China_cities) %>% 
+  group_by(City,Year) %>%
+  summarise(avg_temp= mean(AverageTemperature)) 
+```
+
+```{r,echo=FALSE}
+
+ ggplot(cities_china,aes(Year,avg_temp,color=avg_temp)) + 
+    geom_point() +
+  scale_x_discrete(breaks = c(1913,2013))+ scale_color_viridis(option="B")+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1.2),
+        panel.spacing = unit(0.5, "lines"),legend.position = "top",
+        legend.text=element_text(size=8),
+        panel.grid.major.y = element_blank(),panel.grid.minor.y = element_blank(),
+        legend.key.height = unit(10, "pt"),
+        legend.key.width = unit(70, "pt"))+
+        ggtitle("Temperature Change from 1913 to 2013 in 8 Chinese cities")+
+         ylab("Temperature")+labs(color="Temperature")+
+facet_grid(~City )
+
+
+```
+
+
+```{r,echo=FALSE}
+##ignore
+test <- temperature_states %>% 
+  filter(Country == "United States")%>%
+  filter(State == "North Carolina")
+test
+```
+
+```{r,echo=FALSE}
+US_states<- c("California","Alaska", "Washington", "Texas" , "Florida" ,"Missouri","North Carolina","Maine")
+
+states_us <- temperature_states %>% 
+  filter(State %in% US_states) %>% 
+  group_by(State,Year) %>%
+  summarise(avg_temp= mean(AverageTemperature)) 
+```
+
+
+
+```{r}
+
+states_us
+```
+
+
+
+
+
+```{r,echo=FALSE}
+
+ ggplot(states_us,aes(Year,avg_temp,color=avg_temp)) + 
+    geom_point() +
+  scale_x_discrete(breaks = c(1913,2013))+ scale_color_viridis(option="B")+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1.2),
+        panel.spacing = unit(0.5, "lines"),legend.position = "top",
+        legend.text=element_text(size=8),
+        panel.grid.major.y = element_blank(),panel.grid.minor.y = element_blank(),
+        legend.key.height = unit(10, "pt"),
+        legend.key.width = unit(70, "pt"))+
+        ggtitle("Temperature Change from 1913 to 2013 in 8 US States")+
+         ylab("Temperature")+labs(color="Temperature")+
+facet_grid(~State )
+
+
+```
+
+## **Interpretations:**
+
+Generally speaking, both cities in China and States in the US have an increasing trend of average temperature from 1913 to 2013. I selected representative cities that located in different direction of each country (South, North, center, near the ocean, etc) 
