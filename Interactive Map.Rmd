@@ -65,14 +65,18 @@ Continents<-New_Country%>%
 ```
 
 ```{r}
+Continents$Continents<-Continents$Country
+```
 
-Vio_1<-ggplot(data = Continents, aes(x= Country,y=AverageTemperature,fill=Country))+
+```{r}
+
+Vio_1<-ggplot(data = Continents, aes(x= Country,y=AverageTemperature,fill = Continents))+
   geom_violin() +
   geom_boxplot(width=0.1, color="grey", alpha=0.2)+
   ggtitle("Violin Plot for Continents")+
  
    theme_minimal()
-  
+  #Vio_1
 Vio<-ggplotly(Vio_1)
 ggplotly(Vio_1)
 ```
@@ -303,7 +307,7 @@ By_Year_USA<- left_join(By_Year_USA,Co2, by= c("Country"="Entity","Year"="Year")
 Year_1<-ggplot()+
     geom_line(data = By_Year_USA, aes(x=year, y=Year_Tempt,color="Average Temperature")) +
     geom_line(data = By_Year_USA, aes(x=year, y=Year_diff,color="Temp diff compared with last year"))+
-  #geom_line(data = By_Year_USA,aes(x= year,y=log10(Emission),color= "log CO2"))+
+  geom_line(data = By_Year_USA,aes(x= year,y=log10(Emission),color= "log CO2"))+
       xlab("Dates")+
     ylab("Tempt")+
    labs(color="Tempt_Type")+
@@ -322,12 +326,15 @@ From 1996 to 1998 is when the temperature increased by about two years.
 ```{r}
 By_Year_Russia<-By_Year%>%
   filter(Country %in% c("Russia"))
+By_Year_Russia$Year<- year(By_Year_Russia$year)
+By_Year_Russia<- left_join(By_Year_Russia,Co2, by= c("Country"="Entity","Year"="Year"))
 ```
 
 ```{r}
 Year_2<-ggplot()+
     geom_line(data = By_Year_Russia, aes(x=year, y=Year_Tempt,color="Average Temperature")) +
     geom_line(data = By_Year_Russia, aes(x=year, y=Year_diff,color="Temp diff compared with last year"))+
+  geom_line(data = By_Year_Russia,aes(x= year,y=log10(Emission),color= "log CO2"))+
       xlab("Dates")+
     ylab("Tempt")+
    labs(color="Tempt_Type")+
@@ -353,12 +360,15 @@ For Russia, 1998 to 2003 was a turning point since the temperature increased mor
 ```{r}
 By_Year_China<-By_Year%>%
   filter(Country %in% c("China"))
+By_Year_China$Year<- year(By_Year_China$year)
+By_Year_China<- left_join(By_Year_China,Co2, by= c("Country"="Entity","Year"="Year"))
 ```
 
 ```{r}
 Year_3<-ggplot()+
     geom_line(data = By_Year_China, aes(x=year, y=Year_Tempt,color="Average Temperature")) +
     geom_line(data = By_Year_China, aes(x=year, y=Year_diff,color="Temp diff compared with last year"))+
+  geom_line(data = By_Year_China,aes(x= year,y=log10(Emission),color= "log CO2"))+
       xlab("Dates")+
     ylab("Tempt")+
    labs(color="Tempt_Type")+
@@ -376,6 +386,9 @@ htmlwidgets::saveWidget(CN_1, file="CN_1.html")
 The average temperature of China is increasing as well since 1983.  From 1984 to 1990, the average temperature increases tremendously. 
 From 2012 to 2013, the temperature has an obvious increases(2.2)
 
+
+To sum up, for this part. We find the global warming issue in Russia, USA, and China because of their increasing average temperatures.
+However, We did not find any obvious relationships between CO2 emission and temperatures in the USA and Russia. Instead, we find China has an increasing co2 emission with the same direction as the average temperatures.
 
 ```{r}
 library(tidygeocoder)
