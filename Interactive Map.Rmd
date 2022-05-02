@@ -58,7 +58,31 @@ New_Country<-New_Country %>%
 
 
 
+```{r}
+Continents<-New_Country%>%
+  filter(Country %in% c("Asia", "Africa", "North America", "South America", "Antarctica", 'Europe','Oceania'))%>%
+  filter(dt>=1983-01-01)
+```
 
+```{r}
+
+Vio_1<-ggplot(data = Continents, aes(x= Country,y=AverageTemperature,fill=Country))+
+  geom_violin() +
+  geom_boxplot(width=0.1, color="grey", alpha=0.2)+
+  ggtitle("Violin Plot for Continents")+
+ 
+   theme_minimal()
+  
+Vio<-ggplotly(Vio_1)
+ggplotly(Vio_1)
+```
+We also graphed a violin plot to reflect the average temperature of six continents even though the graph could not reflect the global warming issue.
+However, for Africa, Oceania, and South America, we can assume they have the most negligible impact of global warming, or their temperature won't change a lot over seasonally.
+On the contrary, Asia, Europe, and North America have various changes in average temperatures. Therefore, we aim to analyze countries in Asia, Europe, and North America in the following analysis.
+
+```{r}
+htmlwidgets::saveWidget(Vio, file="Vio.html")
+```
 
 
 ```{r}
@@ -77,50 +101,99 @@ Japan<-New_Country%>%
 ```{r}
 Russia<-New_Country%>%
   filter(Country %in% c("Russia"))
+
 ```
+
+```{r}
+Co2<-read_csv("E:/QMSS/DV/Group_V_Global_Temperature/co2_emission.csv")
+```
+
 
 
 ```{r}
 plot1<- ggplot() +
-    geom_line(data = Russia, aes(x=dt, y=AverageTemperature,color="AverageTemperature")) +
-    geom_line(data = Russia, aes(x=dt, y=Diff_Temp,color="Diff_Temp"))+
+    geom_line(data = Russia, aes(x=dt, y=AverageTemperature,color="Average Temperature")) +
+    geom_line(data = Russia, aes(x=dt, y=Diff_Temp,color="Temp diff compared with previous month"))+
+   #geom_point(aes(x=as.Date(1984-12-01),y=-5.339),colour="red")+
     xlab("Dates")+
     ylab("Tempt")+
    labs(color="Tempt_Type")+
-    ggtitle("Russia Monthly Temperature and Difference with previous year from 1990 to 2013")+
-    scale_x_date(limit=c(as.Date("1990-01-01"),as.Date("2013-09-11")))+
+    ggtitle("Russia Monthly Temperature")+
+    scale_x_date(limit=c(as.Date("1983-01-01"),as.Date("2013-09-11")))+
    theme_minimal()
 
   
+Russia_1<-ggplotly(plot1)
 ggplotly(plot1)
 #plot1
+```
+```{r}
+htmlwidgets::saveWidget(Russia_1, file="Russia_1.html")
+```
+
+
+#Interpretation:
+
+The plot above indicates the monthly average temperature changes from 1983 to 2013 from the average temperature line plot. It's a bit hard to see the temperature trends from the red line. However, the blue line indicates the fluctuating temperature difference between the current and previous months (last year). We can see that there is a noticeable difference in 12-month periods. Closely looking at the 2016/1 and the 2017/1, there are the most significant temperature differences (9.715) over 30 years.
+
+And there are obvious differences in the following dates (temperature differences more significant than absolute of 5 degrees)
+1991-03-01	
+2006-01-01	
+1972-01-01	
+1987-11-01	
+1972-11-01	
+1982-01-01	
+1984-12-01	
+1998-04-01	
+2009-02-01	
+
+
+2007-01-01	
+1995-02-01	
+2003-12-01	
+2007-04-01	
+2000-03-01	
+1983-01-01	
+1989-02-01	
+
+
+```{r}
+Russia_20<-Russia%>%
+   arrange(desc(abs(Diff_Temp)))
 ```
 
 ```{r}
 plot2<-ggplot()+
-    geom_line(data = USA, aes(x=dt, y=AverageTemperature,color="AverageTemperature")) +
-    geom_line(data = USA, aes(x=dt, y=Diff_Temp,color="Diff_Temp"))+
+    geom_line(data = USA, aes(x=dt, y=AverageTemperature,color="Average Temperature")) +
+    geom_line(data = USA, aes(x=dt, y=Diff_Temp,color="Temp diff compared with previous month"))+
     xlab("Dates")+
     ylab("Tempt")+
    labs(color="Tempt_Type")+
-  ggtitle("USA Monthly Temperature and Difference with previous year from 1990 to 2013")+
-    scale_x_date(limit=c(as.Date("1990-01-01"),as.Date("2013-09-11")))+
+  ggtitle("USA Monthly Temperature")+
+    scale_x_date(limit=c(as.Date("1983-01-01"),as.Date("2013-09-11")))+
    theme_minimal()
+USA_1<-ggplotly(plot2)
 ggplotly(plot2)
+```
+The Monthly temperature plot in the USA has relatively smooth temperature differences compared to Russia. The largest temperature difference was 3.735  in 2013/3 and its previous 12 month period (2012/3)
+
+```{r}
+htmlwidgets::saveWidget(USA_1, file="USA_1.html")
 ```
 
 
+
 ```{r}
-plot3<-ggplot()+
-    geom_line(data = Japan, aes(x=dt, y=AverageTemperature,color="AverageTemperature")) +
-    geom_line(data = Japan, aes(x=dt, y=Diff_Temp,color="Diff_Temp"))+
-    xlab("Dates")+
-    ylab("Tempt")+
-   ggtitle("Japan Monthly Temperature and Difference with previous year from 1990 to 2013")+
-   labs(color="Tempt_Type")+
-    scale_x_date(limit=c(as.Date("1990-01-01"),as.Date("2013-09-11")))+
-   theme_minimal()
-ggplotly(plot3)
+# plot3<-ggplot()+
+#     geom_line(data = Japan, aes(x=dt, y=AverageTemperature,color="AverageTemperature")) +
+#     geom_line(data = Japan, aes(x=dt, y=Diff_Temp,color="Diff_Temp"))+
+#     xlab("Dates")+
+#     ylab("Tempt")+
+#    ggtitle("Japan Monthly Temperature and Difference with previous year from 1990 to 2013")+
+#    labs(color="Tempt_Type")+
+#     scale_x_date(limit=c(as.Date("1990-01-01"),as.Date("2013-09-11")))+
+#    theme_minimal()
+# ggplotly(plot3)
 
 ```
 
@@ -159,17 +232,24 @@ Singapore<-New_Country%>%
 
 ```{r}
 plot4<-ggplot()+
-    geom_line(data = Singapore, aes(x=dt, y=AverageTemperature,color="AverageTemperature")) +
-    geom_line(data = Singapore, aes(x=dt, y=Diff_Temp,color="Diff_Temp"))+
+    geom_line(data = Singapore, aes(x=dt, y=AverageTemperature,color="Average Temperature")) +
+    geom_line(data = Singapore, aes(x=dt, y=Diff_Temp,color="Temp diff compared with previous month"))+
     xlab("Dates")+
     ylab("Tempt")+
    labs(color="Tempt_Type")+
-   ggtitle("Singapore Monthly Temperature and Difference with previous year from 1990 to 2013")+
-    scale_x_date(limit=c(as.Date("1971-01-01"),as.Date("2013-09-11")))+
+   ggtitle("Singapore Monthly Temperature")+
+    scale_x_date(limit=c(as.Date("1983-01-01"),as.Date("2013-09-11")))+
    theme_minimal()
+Singapore_1<-ggplotly(plot4)
 ggplotly(plot4)
 ```
+```{r}
+htmlwidgets::saveWidget(Singapore_1, file="Singapore_1.html")
+```
 
+#Interpretations:
+
+Singapore has had a weakly increasing trend in average temperature over 30 years. However, since the location of Singapore, the temperature does not fluctuate a lot.
 
 
 ```{r}
@@ -180,18 +260,18 @@ Indonesia<-New_Country%>%
 
 
 ```{r}
-plot4<-ggplot()+
-    geom_line(data = Indonesia, aes(x=dt, y=AverageTemperature,color="AverageTemperature")) +
-    geom_line(data = Indonesia, aes(x=dt, y=Diff_Temp,color="Diff_Temp"))+
-    xlab("Dates")+
-    ylab("Tempt")+
-   labs(color="Tempt_Type")+
-   ggtitle("Columbia Monthly Temperature and Difference with previous year from 1990 to 2013")+
-    scale_x_date(limit=c(as.Date("1971-01-01"),as.Date("2013-09-11")))+
-   theme_minimal()
-ggplotly(plot4)
+# plot4<-ggplot()+
+#     geom_line(data = Indonesia, aes(x=dt, y=AverageTemperature,color="AverageTemperature")) +
+#     geom_line(data = Indonesia, aes(x=dt, y=Diff_Temp,color="Diff_Temp"))+
+#     xlab("Dates")+
+#     ylab("Tempt")+
+#    labs(color="Tempt_Type")+
+#    ggtitle("Columbia Monthly Temperature and Difference with previous year from 1990 to 2013")+
+#     scale_x_date(limit=c(as.Date("1971-01-01"),as.Date("2013-09-11")))+
+#    theme_minimal()
+# ggplotly(plot4)
 ```
-
+The monthly plot is tough to see the overall trends; therefore, we graphed temperature changes by year in the following plots.
 
 ```{r}
 
@@ -213,22 +293,32 @@ class(By_Year$year)
 ```{r}
 By_Year_USA<-By_Year%>%
   filter(Country %in% c("United States"))
+By_Year_USA$Year<- year(By_Year_USA$year)
+By_Year_USA<- left_join(By_Year_USA,Co2, by= c("Country"="Entity","Year"="Year"))
 ```
+
+
 
 ```{r}
 Year_1<-ggplot()+
-    geom_line(data = By_Year_USA, aes(x=year, y=Year_Tempt,color="Year_Tempt")) +
-    geom_line(data = By_Year_USA, aes(x=year, y=Year_diff,color="Year_diff"))+
+    geom_line(data = By_Year_USA, aes(x=year, y=Year_Tempt,color="Average Temperature")) +
+    geom_line(data = By_Year_USA, aes(x=year, y=Year_diff,color="Temp diff compared with last year"))+
+  #geom_line(data = By_Year_USA,aes(x= year,y=log10(Emission),color= "log CO2"))+
       xlab("Dates")+
     ylab("Tempt")+
    labs(color="Tempt_Type")+
-   ggtitle("USA Yearly Temperature and Difference with previous year from 1990 to 2013")+
-    scale_x_date(limit=c(as.Date("1971-01-01"),as.Date("2013-09-11")))+
+   ggtitle("USA Yearly Temperature and Difference with previous year from 1983 to 2013")+
+    scale_x_date(limit=c(as.Date("1983-01-01"),as.Date("2013-09-11")))+
    theme_minimal()
+USA_2<-ggplotly(Year_1)
 ggplotly(Year_1)
 ```
-
-
+```{r}
+htmlwidgets::saveWidget(USA_2, file="USA_2.html")
+```
+The yearly plot for the USA is easy to see the increasing trends in average year temperature.
+From 1996 to 1998 is when the temperature increased by about two years.
+ From 2008 to 2013, there was a continuing increase in temperatures from 8.95 degrees to 11.3 degrees. 
 ```{r}
 By_Year_Russia<-By_Year%>%
   filter(Country %in% c("Russia"))
@@ -236,51 +326,56 @@ By_Year_Russia<-By_Year%>%
 
 ```{r}
 Year_2<-ggplot()+
-    geom_line(data = By_Year_Russia, aes(x=year, y=Year_Tempt,color="Year_Tempt")) +
-    geom_line(data = By_Year_Russia, aes(x=year, y=Year_diff,color="Year_diff"))+
+    geom_line(data = By_Year_Russia, aes(x=year, y=Year_Tempt,color="Average Temperature")) +
+    geom_line(data = By_Year_Russia, aes(x=year, y=Year_diff,color="Temp diff compared with last year"))+
       xlab("Dates")+
     ylab("Tempt")+
    labs(color="Tempt_Type")+
-   ggtitle("Russia Yearly Temperature and Difference with previous year from 1990 to 2013")+
-    scale_x_date(limit=c(as.Date("1971-01-01"),as.Date("2013-09-11")))+
+   ggtitle("Russia Yearly Temperature and Difference with previous year from 1983 to 2013")+
+    scale_x_date(limit=c(as.Date("1983-01-01"),as.Date("2013-09-11")))+
    theme_minimal()
+Russia_2<-ggplotly(Year_2)
 ggplotly(Year_2)
 ```
-
-
 ```{r}
-By_Year_Japan<-By_Year%>%
-  filter(Country %in% c("Japan"))
+htmlwidgets::saveWidget(Russia_2, file="Russia_2.html")
+```
+```{r}
+summary(By_Year_Russia)
+```
+
+The yearly plot for Russia is easy to see the increasing trends in average year temperature. And the temperature difference compared with last year changes drastically. (Blue line)
+
+For Russia, 1998 to 2003 was a turning point since the temperature increased more than two years.
+ From 2009 to 2013, there was a continuing increase in temperatures from -4.6 degrees to 2.2 degrees. Even though the temperatures fell back in 2012, the average temperature can not go back to the mean value of - 4.596 degrees. 
+ 
+ 
+```{r}
+By_Year_China<-By_Year%>%
+  filter(Country %in% c("China"))
 ```
 
 ```{r}
 Year_3<-ggplot()+
-    geom_line(data = By_Year_Japan, aes(x=year, y=Year_Tempt,color="Year_Tempt")) +
-    geom_line(data = By_Year_Japan, aes(x=year, y=Year_diff,color="Year_diff"))+
+    geom_line(data = By_Year_China, aes(x=year, y=Year_Tempt,color="Average Temperature")) +
+    geom_line(data = By_Year_China, aes(x=year, y=Year_diff,color="Temp diff compared with last year"))+
       xlab("Dates")+
     ylab("Tempt")+
    labs(color="Tempt_Type")+
-   ggtitle("JP Yearly Temperature and Difference with previous year from 1990 to 2013")+
-    scale_x_date(limit=c(as.Date("1971-01-01"),as.Date("2013-09-11")))+
+   ggtitle("China Yearly Temperature and Difference with previous year from 1983 to 2013")+
+    scale_x_date(limit=c(as.Date("1983-01-01"),as.Date("2013-09-11")))+
    theme_minimal()
+CN_1<-ggplotly(Year_3)
 ggplotly(Year_3)
 ```
-
-
 ```{r}
-Continents<-New_Country%>%
-  filter(Country %in% c("Asia", "Africa", "North America", "South America", "Antarctica", 'Europe','Oceania'))
+htmlwidgets::saveWidget(CN_1, file="CN_1.html")
 ```
 
-```{r}
 
-Vio_1<-ggplot(data = Continents, aes(x= Country,y=AverageTemperature,fill=Country))+
-  geom_violin() +
-  geom_boxplot(width=0.1, color="grey", alpha=0.2)+
-   theme_minimal()
-  
-ggplotly(Vio_1)
-```
+The average temperature of China is increasing as well since 1983.  From 1984 to 1990, the average temperature increases tremendously. 
+From 2012 to 2013, the temperature has an obvious increases(2.2)
+
 
 ```{r}
 library(tidygeocoder)
