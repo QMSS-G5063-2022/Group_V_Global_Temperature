@@ -6,3 +6,11 @@ Team Members:
 - Tian Chen, tc3147@columbia.edu
 - Jialin Wu, jw4188@columbia.edu
 - Lucas Lu, yl4798@columbia.edu
+
+# Website
+
+The address of our website is http://tian-chen-98.github.io/DV_Presentation
+
+# Presentation Video
+
+Video can be downloaded [here](https://drive.google.com/file/d/1OB-jZeX86HLS2XTz9sOgogdgc5PCwX18/view?usp=sharing)
