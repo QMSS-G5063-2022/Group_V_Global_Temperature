@@ -1,0 +1,111 @@
+---
+title: "Project"
+date: '2022-04-26'
+always_allow_html: yes
+last_modified_at: 2021-05-30
+output: 
+  md_document:
+    variant: gfm
+    preserve_yaml: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(leaflet)
+library(rgdal)
+library(countrycode)
+library(leaflet.extras)
+library(leaflet.extras2)
+library(widgetframe)
+library(htmlwidgets)
+```
+
+```{r}
+climate_country_before <- read.csv("/home/tianc/Downloads/GlobalLandTemperaturesByCountry.csv") %>% 
+  drop_na() %>%
+  filter(., dt >= as.Date("1743-11-01"), dt <= as.Date("1975-01-01")) %>% 
+  select(dt, AverageTemperature, Country) %>% 
+  group_by(Country) %>%
+  summarize(AverageTemperature = mean(AverageTemperature))
+
+climate_country_before$AverageTemperature <- round(climate_country_before$AverageTemperature, 2)
+
+climate_country_before
+```
+```{r}
+climate_country_after <- read.csv("/home/tianc/Downloads/GlobalLandTemperaturesByCountry.csv") %>% 
+  drop_na() %>%
+  filter(., dt > as.Date("1870-01-01"), dt <= as.Date("2013-09-01")) %>% 
+  select(dt, AverageTemperature, Country) %>% 
+  group_by(Country) %>%
+  summarize(AverageTemperature = mean(AverageTemperature))
+
+climate_country_after$AverageTemperature <- round(climate_country_after$AverageTemperature, 2)
+
+climate_country_after
+```
+
+
+```{r}
+climate_change <- as.tibble(climate_country_after$AverageTemperature - climate_country_before$AverageTemperature) %>% 
+  rename(., AverageTemperature=value)
+
+climate_change$Country <- climate_country_after$Country
+```
+
+
+```{r}
+world_shape = readOGR(dsn= "/home/tianc/Documents/course_content/Lectures/Week07/data/world_map/", 
+                     layer="TM_WORLD_BORDERS_SIMPL-0.3")
+```
+
+```{r}
+climate_data <- world_shape@data %>% 
+  left_join(climate_change, by = c(NAME = "Country"))
+
+world_shape@data <- climate_data
+
+```
+
+```{r}
+palette <- colorNumeric(palette="viridis", domain=climate_data$AverageTemperature, na.color="transparent")
+palette(c(45,43))
+```
+
+
+```{r}
+world_map <- leaflet(world_shape) %>%
+  setView(lat=10, lng=0 , zoom=2) %>%
+  addPolygons(stroke = TRUE,
+              weight=0.8, 
+              color='black', 
+              opacity=1,
+              fillColor = ~palette(AverageTemperature), 
+              fillOpacity = 1,
+              label = ~stringr::str_c(NAME, ' ',formatC(AverageTemperature, big.mark = ',', format='d')),
+              labelOptions = labelOptions(direction = 'auto'),
+              highlightOptions = highlightOptions(color='white', weight = 3,bringToFront = TRUE),
+              popup = paste(
+                "Country:",climate_data$NAME,"<br/>",
+                "Temperature Change:", climate_data$AverageTemperature, "°C","<br/>"
+              )) %>% 
+  addLegend("bottomright", pal = palette, values = ~AverageTemperature,
+    title = "Temperature Change in °C",
+    labFormat = labelFormat(suffix  = "°C"),
+    opacity = 1
+  )
+
+```
+
+```{r}
+world_map
+```
+
+
+```{r}
+saveWidget(world_map, file=paste0(getwd(), "/climate_change_map.html"))
+```
