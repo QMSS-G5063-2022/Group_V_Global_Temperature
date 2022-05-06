@@ -3,6 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+.Rpoj.user/
+
 # C extensions
 *.so
 
@@ -127,6 +129,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-.Rproj.user
-Group_V_Global_Temperature.Rproj
+
 .Rhistory
+Group_V_Global_Temperature.Rproj
+.Rproj.user/A406882A/rmd-outputs
