@@ -129,3 +129,4 @@ dmypy.json
 .pyre/
 .Rproj.user
 Group_V_Global_Temperature.Rproj
+.Rhistory
