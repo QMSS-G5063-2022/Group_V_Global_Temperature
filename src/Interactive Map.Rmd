@@ -17,6 +17,7 @@ library(DMwR2)
 library(dplyr)
 library(lubridate)
 library(hrbrthemes)
+library(viridis)
 ```
 
 
@@ -33,7 +34,7 @@ getwd()
 ```
 
 ```{r}
-Country<-read_csv("E:/QMSS/DV/Group_V_Global_Temperature/GlobalLandTemperaturesByCountry.csv")
+Country<-read_csv("C:/Users/ch199/Downloads/GlobalLandTemperaturesByCountry.csv")
 ```
 ```{r}
 class(Country$dt)
@@ -74,8 +75,7 @@ Vio_1<-ggplot(data = Continents, aes(x= Country,y=AverageTemperature,fill = Cont
   geom_violin() +
   geom_boxplot(width=0.1, color="grey", alpha=0.2)+
   ggtitle("Violin Plot for Continents")+
- 
-   theme_minimal()
+  theme_minimal()
   #Vio_1
 Vio<-ggplotly(Vio_1)
 ggplotly(Vio_1)
@@ -109,7 +109,7 @@ Russia<-New_Country%>%
 ```
 
 ```{r}
-Co2<-read_csv("E:/QMSS/DV/Group_V_Global_Temperature/co2_emission.csv")
+Co2<-read_csv("C:/Users/ch199/Downloads/co2_emission.csv")
 ```
 
 
@@ -121,7 +121,7 @@ plot1<- ggplot() +
    #geom_point(aes(x=as.Date(1984-12-01),y=-5.339),colour="red")+
     xlab("Dates")+
     ylab("Tempt")+
-   labs(color="Tempt_Type")+
+   labs(color="Temperature Type")+
     ggtitle("Russia Monthly Temperature")+
     scale_x_date(limit=c(as.Date("1983-01-01"),as.Date("2013-09-11")))+
    theme_minimal()
@@ -172,7 +172,7 @@ plot2<-ggplot()+
     geom_line(data = USA, aes(x=dt, y=Diff_Temp,color="Temp diff compared with previous month"))+
     xlab("Dates")+
     ylab("Tempt")+
-   labs(color="Tempt_Type")+
+   labs(color="Temperature Type")+
   ggtitle("USA Monthly Temperature")+
     scale_x_date(limit=c(as.Date("1983-01-01"),as.Date("2013-09-11")))+
    theme_minimal()
@@ -182,7 +182,7 @@ ggplotly(plot2)
 The Monthly temperature plot in the USA has relatively smooth temperature differences compared to Russia. The largest temperature difference was 3.735  in 2013/3 and its previous 12 month period (2012/3)
 
 ```{r}
-htmlwidgets::saveWidget(USA_1, file="USA_1.html")
+htmlwidgets::saveWidget(USA_1, file="D:/GR5063-Data_Viz/USA_1.html")
 ```
 
 
@@ -240,7 +240,7 @@ plot4<-ggplot()+
     geom_line(data = Singapore, aes(x=dt, y=Diff_Temp,color="Temp diff compared with previous month"))+
     xlab("Dates")+
     ylab("Tempt")+
-   labs(color="Tempt_Type")+
+   labs(color="Temperature Type")+
    ggtitle("Singapore Monthly Temperature")+
     scale_x_date(limit=c(as.Date("1983-01-01"),as.Date("2013-09-11")))+
    theme_minimal()
@@ -248,7 +248,7 @@ Singapore_1<-ggplotly(plot4)
 ggplotly(plot4)
 ```
 ```{r}
-htmlwidgets::saveWidget(Singapore_1, file="Singapore_1.html")
+htmlwidgets::saveWidget(Singapore_1, file="D:/GR5063-Data_Viz/Singapore_1.html")
 ```
 
 #Interpretations:
@@ -307,10 +307,9 @@ By_Year_USA<- left_join(By_Year_USA,Co2, by= c("Country"="Entity","Year"="Year")
 Year_1<-ggplot()+
     geom_line(data = By_Year_USA, aes(x=year, y=Year_Tempt,color="Average Temperature")) +
     geom_line(data = By_Year_USA, aes(x=year, y=Year_diff,color="Temp diff compared with last year"))+
-  geom_line(data = By_Year_USA,aes(x= year,y=log10(Emission),color= "log CO2"))+
       xlab("Dates")+
     ylab("Tempt")+
-   labs(color="Tempt_Type")+
+   labs(color="Temperature Change")+
    ggtitle("USA Yearly Temperature and Difference with previous year from 1983 to 2013")+
     scale_x_date(limit=c(as.Date("1983-01-01"),as.Date("2013-09-11")))+
    theme_minimal()
@@ -318,7 +317,7 @@ USA_2<-ggplotly(Year_1)
 ggplotly(Year_1)
 ```
 ```{r}
-htmlwidgets::saveWidget(USA_2, file="USA_2.html")
+htmlwidgets::saveWidget(USA_2, file="D:/GR5063-Data_Viz/DV_Presentation/USA_2.html")
 ```
 The yearly plot for the USA is easy to see the increasing trends in average year temperature.
 From 1996 to 1998 is when the temperature increased by about two years.
@@ -334,10 +333,9 @@ By_Year_Russia<- left_join(By_Year_Russia,Co2, by= c("Country"="Entity","Year"="
 Year_2<-ggplot()+
     geom_line(data = By_Year_Russia, aes(x=year, y=Year_Tempt,color="Average Temperature")) +
     geom_line(data = By_Year_Russia, aes(x=year, y=Year_diff,color="Temp diff compared with last year"))+
-  geom_line(data = By_Year_Russia,aes(x= year,y=log10(Emission),color= "log CO2"))+
       xlab("Dates")+
     ylab("Tempt")+
-   labs(color="Tempt_Type")+
+   labs(color="Temperature Type")+
    ggtitle("Russia Yearly Temperature and Difference with previous year from 1983 to 2013")+
     scale_x_date(limit=c(as.Date("1983-01-01"),as.Date("2013-09-11")))+
    theme_minimal()
@@ -345,7 +343,7 @@ Russia_2<-ggplotly(Year_2)
 ggplotly(Year_2)
 ```
 ```{r}
-htmlwidgets::saveWidget(Russia_2, file="Russia_2.html")
+htmlwidgets::saveWidget(Russia_2, file="D:/GR5063-Data_Viz/DV_Presentation/Russia_2.html")
 ```
 ```{r}
 summary(By_Year_Russia)
@@ -368,7 +366,6 @@ By_Year_China<- left_join(By_Year_China,Co2, by= c("Country"="Entity","Year"="Ye
 Year_3<-ggplot()+
     geom_line(data = By_Year_China, aes(x=year, y=Year_Tempt,color="Average Temperature")) +
     geom_line(data = By_Year_China, aes(x=year, y=Year_diff,color="Temp diff compared with last year"))+
-  geom_line(data = By_Year_China,aes(x= year,y=log10(Emission),color= "log CO2"))+
       xlab("Dates")+
     ylab("Tempt")+
    labs(color="Tempt_Type")+
@@ -379,7 +376,7 @@ CN_1<-ggplotly(Year_3)
 ggplotly(Year_3)
 ```
 ```{r}
-htmlwidgets::saveWidget(CN_1, file="CN_1.html")
+htmlwidgets::saveWidget(CN_1, file="D:/GR5063-Data_Viz/DV_Presentation/CN_1.html")
 ```
 
 
@@ -437,8 +434,7 @@ By_year_new <-By_Year%>%
   geom_polygon(color = "white", 
                size = 0.01)+
   theme_void() +
-  scale_fill_viridis(option = "B",
-                     name= "Temperature Differences by Year",
+  scale_fill_viridis(name= "Temperature Differences by Year",
                      guide = guide_colorbar(
                        direction = "horizontal",
                        barheight = unit(2, units = "mm"),
@@ -460,6 +456,7 @@ By_year_new <-By_Year%>%
   
       
 ```
+
 ```{r}
 animate(By_year_new, 
         fps = 10, 
